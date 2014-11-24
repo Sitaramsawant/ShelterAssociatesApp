@@ -269,16 +269,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 		ArrayList<ArrayList<String>> surveys = new ArrayList<ArrayList<String>>();
 		SQLiteDatabase db = this.getWritableDatabase();
 		//String selectQuery = "SELECT  * FROM " + TABLE_SURVEYS + " WHERE " + KEY_COMPLETE + " = 1";
-		String selectQuery ="";
-		if(survey_city.equalsIgnoreCase("PUNE"))
-		{
-			selectQuery=selectQuery+= "SELECT  * FROM " + TABLE_SURVEYS + " WHERE  "+ KEY_SURVEYID + " Like '%13%' and " + KEY_COMPLETE + " = 1";
-		
-		}else if(survey_city.equalsIgnoreCase("PCMC"))
-		{
-			selectQuery=selectQuery+= "SELECT  * FROM " + TABLE_SURVEYS + " WHERE  "+ KEY_SURVEYID + " Like '%16%' and " + KEY_COMPLETE + " = 1";			
-		}
-		
+		String selectQuery = "SELECT  * FROM " + TABLE_SURVEYS + " WHERE "+ KEY_SURVEYID + " Like '%"+survey_city.substring(0,survey_city.length()-1)+"%' and " + KEY_COMPLETE + " = 1";
+
 		try
 		{
 			Cursor cursor = db.rawQuery(selectQuery, null);
