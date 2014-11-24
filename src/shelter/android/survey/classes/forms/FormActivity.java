@@ -1,4 +1,5 @@
 package shelter.android.survey.classes.forms;
+import shelter.android.survey.classes.menus.SlumSelect;
 import shelter.android.survey.classes.utils.*;
 import shelter.android.survey.classes.widgets.*;
 
@@ -93,7 +94,7 @@ public abstract class FormActivity extends InternetUtils
 	// parse data and build view
 	//
 	// -----------------------------------------------
-
+	
 	/**
 	 * parses a supplied schema of raw json data and creates widgets
 	 * @param data - the raw json data as a String
@@ -105,7 +106,7 @@ public abstract class FormActivity extends InternetUtils
 		_map = new HashMap<String, FormWidget>();
 
 		try
-		{
+		{						
 			String name;
 			FormWidget widget;
 			JSONObject property;
@@ -127,12 +128,13 @@ public abstract class FormActivity extends InternetUtils
 				{
 					name = name + " *";
 				}
-
-				widget = getWidget( name, property );
+			
+				widget = getWidget( name, property );				
 				if( widget == null) continue;
 				widget.setPriority( priority );
 				widget.setValue( defaultValue );
-
+				
+				
 				if( toggles ){
 					widget.setToggles( processToggles( property ) );
 					widget.setToggleHandler( new FormActivity.FormWidgetToggleHandler() );
@@ -175,14 +177,27 @@ public abstract class FormActivity extends InternetUtils
 		}
 
 		_viewport.addView( _layout );
-		_container.addView( _viewport );
-
-		
+		_container.addView( _viewport );	
 
 
 		return _container;
 	}
 
+	/**
+	 * Function added by SC :
+	 * Set Spinner previous value after saving household data.
+	 */
+	public void setSpinner(String val) 
+	{
+		for( int i = 0; i < _widgets.size(); i++)
+		{
+			if(_widgets.get(i).getDisplayText().equalsIgnoreCase("Select a Slum *"))
+			{
+				_widgets.get(i).setValue(val);				
+			}
+		}			
+	}
+	
 	void resetErrors()
 	{
 		for( int i = 0; i < _widgets.size(); i++)
@@ -382,7 +397,7 @@ public abstract class FormActivity extends InternetUtils
 			{	
 				if( property.has( FormActivity.SCHEMA_KEY_OPTIONS ) ) 
 				{
-					JSONObject options = property.getJSONObject( FormActivity.SCHEMA_KEY_OPTIONS );
+					JSONObject options = property.getJSONObject( FormActivity.SCHEMA_KEY_OPTIONS );					
 					return new OrderedSpinner(  this, name, options, id, type, bTakePhoto );
 				}
 			}
