@@ -20,12 +20,15 @@ import android.widget.LinearLayout.LayoutParams;
 
 public class SlumSelect extends FormActivity 
 {
+	public String slumID="";
+	//FormSpinner ff=new FormSpinner(getApplicationContext(), property, options, id, type, bTakePhoto);
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate( savedInstanceState );
         final String surveyId = (String) getIntent().getExtras().get("surveyId");
         final String surveyName = (String) getIntent().getExtras().get("surveyName");
+                
         setTitle(surveyName);
         // Prepare the 'Continue' button
 		Button bt = new Button(this);
@@ -38,9 +41,7 @@ public class SlumSelect extends FormActivity
 				if(getName(0).equals(" Make a Selection"))
 				{
 					Toast.makeText(getApplicationContext(), "Please select a slum!" , Toast.LENGTH_SHORT).show();
-
-				}
-				
+				}				
 				else
 				{
 				Intent intent = new Intent(v.getContext(), MainSurvey.class);
@@ -100,7 +101,13 @@ public class SlumSelect extends FormActivity
         	if (surveyId.indexOf("h") != -1) {
         		questionString += FormActivity.parseAssetToString(this, "household_select_template.json");
         	} 
+        	Intent intent = getIntent();
+            if (intent.hasExtra("slumID")) {
+            	slumID=intent.getExtras().getString("slumID");            	
+            }
+            
     		LinearLayout layout = generateForm(questionString + " }"); 
+    		
     		TextView spacer = new TextView(this);
     		spacer.setHeight(15);
     		layout.addView(spacer);
@@ -117,6 +124,16 @@ public class SlumSelect extends FormActivity
     	} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-          
+		//set spinner previous value after saving , update household record
+		setSpinner(slumID);
     }
+
+    @Override
+	public void onBackPressed()
+	{
+    	Intent intent = new Intent(this, SurveySelect.class);
+    	startActivity(intent);
+    	finish();
+	}
+
 }
