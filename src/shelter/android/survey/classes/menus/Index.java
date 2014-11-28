@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -21,10 +22,16 @@ import android.widget.Toast;
 
 public class Index extends InternetUtils {
 
+	public ArrayList<String> mArray=new ArrayList<String>();
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.index_layout);
+		
+		mArray.add("PUNE_13s");
+		mArray.add("PCMC_16s");
+		mArray.add("Masterlist_17s");
+		mArray.add("FamilyFactSheet_18s");			
 	}
 
 	@Override
@@ -50,7 +57,9 @@ public class Index extends InternetUtils {
 		if (isNetworkAvailable()==true)
 		{
 			Intent intent = new Intent(this, UploadExisting.class);
-			intent.putExtra("survey_group", "PUNE");
+			//intent.putExtra("survey_group", "PUNE");
+			String[] msplit=mArray.get(0).split("_");
+			intent.putExtra("survey_group", msplit[1]);
 			startActivity(intent);
 		}
 		else
@@ -112,7 +121,8 @@ public class Index extends InternetUtils {
 		if (isNetworkAvailable()==true)
 		{
 			Intent intent = new Intent(Index.this, UploadMap.class);
-			intent.putExtra("survey_group", "PUNE");
+			String[] msplit=mArray.get(0).split("_");
+			intent.putExtra("survey_group", msplit[1]);
 			startActivity(intent);
 		}
 		else
@@ -126,7 +136,10 @@ public class Index extends InternetUtils {
 		if (isNetworkAvailable()==true)
 		{
 			Intent intent = new Intent(Index.this, UploadExisting.class);
-			intent.putExtra("survey_group", "PCMC");
+			
+			String[] msplit=mArray.get(1).split("_");
+			intent.putExtra("survey_group", msplit[1]);
+			//intent.putExtra("survey_group", "PCMC");
 			startActivity(intent);
 		}
 		else
@@ -141,7 +154,9 @@ public class Index extends InternetUtils {
 		if (isNetworkAvailable()==true)
 		{
 			Intent intent = new Intent(Index.this, UploadMap.class);
-			intent.putExtra("survey_group", "PCMC");
+			String[] msplit=mArray.get(1).split("_");
+			intent.putExtra("survey_group", msplit[1]);
+			//intent.putExtra("survey_group", "PCMC");
 			startActivity(intent);
 		}
 		else
@@ -150,6 +165,40 @@ public class Index extends InternetUtils {
 		}
 	}
 	
+	public void goToMasterListUpload(View view)
+	{
+		if (isNetworkAvailable()==true)
+		{
+			Intent intent = new Intent(Index.this, UploadExisting.class);
+			
+			String[] msplit=mArray.get(2).split("_");
+			intent.putExtra("survey_group", msplit[1]);
+			//intent.putExtra("survey_group", "PCMC");
+			startActivity(intent);
+		}
+		else
+		{
+			alertConnectionUnavailable();
+		}
+	}
+	
+	public void goToFamilyToiletUpload(View view)
+	{
+		if (isNetworkAvailable()==true)
+		{
+			Intent intent = new Intent(Index.this, UploadExisting.class);
+			
+			String[] msplit=mArray.get(3).split("_");
+			intent.putExtra("survey_group", msplit[1]);
+			//intent.putExtra("survey_group", "PCMC");
+			startActivity(intent);
+		}
+		else
+		{
+			alertConnectionUnavailable();
+		}
+	}
+		
 	@Override
 	public void onBackPressed()
 	{
