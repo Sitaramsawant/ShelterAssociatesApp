@@ -10,5 +10,7 @@
     <string name="index_onlineMapUpload">Upload Online Map Survey</string>
     <string name="index_onlinePCMCUpload">Upload Online PCMC Survey</string>
     <string name="index_onlinePCMCMapUpload">Upload Online PCMC Map Survey</string>
+     <string name="index_onlineMasterListUpload">Upload Master List Survey</string>
+      <string name="index_onlineFamilyFactsheetUpload">Upload Family Factsheet Survey</string>
     
 </resources>
