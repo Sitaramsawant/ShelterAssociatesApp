@@ -11,10 +11,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -83,6 +86,7 @@ public class MainSurvey extends SurveyFormActivity
 	String slumName;
 	String section;
 	String householdId;
+	String surveyName;
 	JSONObject json_survey;
 
 	PrintWriter writer;
@@ -97,6 +101,7 @@ public class MainSurvey extends SurveyFormActivity
 		subSections = getIntent().getExtras().getStringArrayList("subSections");
 		householdId = (String)getIntent().getExtras().get("householdId");
 		survey = (String)getIntent().getExtras().get("surveyId");
+		surveyName = (String)getIntent().getExtras().get("surveyName");
 		section = (String) getIntent().getExtras().get("section");
 		String json_data = parseDownloadToString( "all_surveys.json" );
 		key = init(slum, survey, householdId);
@@ -111,11 +116,7 @@ public class MainSurvey extends SurveyFormActivity
 		 * first time the survey has been opened. We then need
 		 * to read the existing subsections from the Database.
 		 *
-		 */
-		
-
-		
-		
+		 */		
 		
 		try {
 			obj = new JSONObject( json_data );
@@ -130,7 +131,7 @@ public class MainSurvey extends SurveyFormActivity
 			mContentFrame.addView(layout);
 			// Render the sidebar
 			mDrawerList = (ListView)findViewById(R.id.left_drawer);
-			sections = getSections(json_survey.toString(), subSections);
+			sections = getSections(json_survey.toString(), subSections);			
 			ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.drawer_list_item, sections);
 			mDrawerList.setAdapter(adapter);
 			mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
@@ -140,7 +141,15 @@ public class MainSurvey extends SurveyFormActivity
 		}
 		// Load existing facts for the current survey
 		DatabaseHandler db = new DatabaseHandler(this);
-		populate(db, key);
+		if(survey.equals("17h") || survey.equals("18h"))
+		{
+			populate(db, key,householdId ,true);
+		}else
+		{
+			populate(db, key);
+		}
+		
+		
 	}
 	
 	/*
@@ -169,6 +178,7 @@ public class MainSurvey extends SurveyFormActivity
 		intent.putExtra("slum", slum);
 		intent.putExtra("slumName", slumName);
 		intent.putExtra("surveyId", survey);
+		intent.putExtra("surveyName", surveyName);
 		intent.putExtra("section", section);
 		intent.putExtra("subSections", subSections);
 		intent.putExtra("householdId",  householdId);
@@ -262,8 +272,14 @@ public class MainSurvey extends SurveyFormActivity
 			saved = save(db, key, json_survey.toString());
 			if (saved)
 			{
-				Intent intent = new Intent(this, Index.class);
+				//Intent intent = new Intent(this, Index.class);
+				Intent intent  = new Intent(getBaseContext(), SlumSelect.class);
+				intent.putExtra("surveyName", surveyName);
+				intent.putExtra("surveyId", survey);
+				intent.putExtra("slumID", slum);
 				startActivity(intent);
+				finish();
+				
 			}
 			break;
 
@@ -293,8 +309,13 @@ public class MainSurvey extends SurveyFormActivity
 		{
 			public void onClick(DialogInterface arg0, int arg1)
 			{
-				Intent intent  = new Intent(getBaseContext(), Index.class);
+				//Intent intent  = new Intent(getBaseContext(), Index.class);
+				Intent intent  = new Intent(getBaseContext(), SlumSelect.class);
+				intent.putExtra("surveyName", surveyName);
+				intent.putExtra("surveyId", survey);
+				intent.putExtra("slumID", slum);
 				startActivity(intent);
+				finish();
 			}
 		})
 		.setPositiveButton("Yes", new OnClickListener()
@@ -302,9 +323,13 @@ public class MainSurvey extends SurveyFormActivity
 			public void onClick(DialogInterface arg0, int arg1)
 			{
 				saveAsDraft(db, key);
-				Intent intent  = new Intent(getBaseContext(), Index.class);
+				//Intent intent  = new Intent(getBaseContext(), Index.class);
+				Intent intent  = new Intent(getBaseContext(), SlumSelect.class);
+				intent.putExtra("surveyName", surveyName);
+				intent.putExtra("surveyId", survey);
+				intent.putExtra("slumID", slum);
 				startActivity(intent);
-
+				finish();
 			}
 
 		}
@@ -337,9 +362,11 @@ public class MainSurvey extends SurveyFormActivity
 						Looper.prepare();
 						URL url = new URL("https://survey.shelter-associates.org/android/get_survey/" + surveyIdNoSuffix + "/" 
 						+ slumId + "/" + householdId+"/");
+												
 						// Ignore unverified certificate
 						trustAllHosts();
 						HttpsURLConnection https = (HttpsURLConnection) url.openConnection();
+						//HttpURLConnection https = (HttpURLConnection) url.openConnection();
 						https.setHostnameVerifier(DO_NOT_VERIFY);
 						InputStream is = (InputStream) https.getContent();
 						String jsonData = convertStreamToString(is);
@@ -391,6 +418,7 @@ public class MainSurvey extends SurveyFormActivity
 							intent.putExtra("slum", slum); // slum should be the chosen spinner value
 							intent.putExtra("slumName", slumName);
 							intent.putExtra("surveyId", surveyId);
+							intent.putExtra("surveyName", surveyName);
 							intent.putExtra("section", "");
 							intent.putExtra("householdId", householdId);
 							startActivity(intent);
@@ -417,6 +445,7 @@ public class MainSurvey extends SurveyFormActivity
 			Toast.makeText(getBaseContext(), "Something went wrong." , Toast.LENGTH_LONG).show();
 		}
 	}
+	
 	static String convertStreamToString(java.io.InputStream is) {
 	    java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
 	    return s.hasNext() ? s.next() : "";
