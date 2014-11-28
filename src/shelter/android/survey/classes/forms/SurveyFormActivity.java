@@ -7,8 +7,11 @@ import shelter.android.survey.classes.menus.Index;
 import java.io.File;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -113,8 +116,18 @@ public abstract class SurveyFormActivity extends FormActivity
 
 			JSONArray sections = schema.getJSONArray("sections");
 			if (sectionName.equals("")) {
-				JSONObject section_1 = sections.getJSONObject(0);
-				sectionName = section_1.getString("name");
+				
+				for (int i = 0; i<sections.length(); i++)
+				{
+					JSONObject section = sections.getJSONObject(i);
+					String sectionName_1 = section.getString("id");
+					if(section.getString("id").trim().equalsIgnoreCase("1"))
+					{
+						JSONObject section_1 = sections.getJSONObject(i);
+						sectionName = section_1.getString("name");
+					}					
+				}
+
 			}
 			
 			JSONObject section = new JSONObject();
@@ -164,6 +177,7 @@ public abstract class SurveyFormActivity extends FormActivity
 				if( widget == null) continue;
 				widget.setPriority( priority );
 				widget.setValue( defaultValue );
+				
 			
 				if(partOfSub)
 				{
@@ -295,8 +309,7 @@ public abstract class SurveyFormActivity extends FormActivity
 								});
 								AlertDialog alertDialog = alertDialogBuilder.create();
 								alertDialog.show();
-						}
-						
+						}						
 						return;
 					}	
 
@@ -353,11 +366,33 @@ public abstract class SurveyFormActivity extends FormActivity
 
 			JSONObject schema = new JSONObject(data);
 			JSONArray sections = schema.getJSONArray("sections");
-			for (int i = 0; i<sections.length(); i++)
-			{
+
+			ArrayList<String> sectionId= new ArrayList<String>();
+			
+			for (int i = 0; i < sections.length(); i++) {
 				JSONObject section = sections.getJSONObject(i);
-				String sectionName = section.getString("name");
+				sectionId.add(section.getString("id") +":"+section.getString("name"));
+			}
+			//Sorting section according to id
+			Collections.sort(sectionId, new Comparator<String>() {
+		        @Override
+		        public int compare(String s1, String s2) {
+		        	String[] C_s1=s1.split(":");
+		        	String[] C_s2=s2.split(":");
+		        	
+		        	return C_s1[0].trim().compareToIgnoreCase(C_s2[0].trim());		             
+		              
+		        }
+		    });	
+			
+	
+			for (int i = 0; i<sectionId.size(); i++)
+			{
+				String[] sectionNameresult = sectionId.get(i).split(":");
+				String sectionName = sectionNameresult[1].toString();
+				//String sectionID = section.getString("id");
 				result.add(sectionName);
+			
 				try {
 					if (subSections.contains(sectionName))
 					{
@@ -374,8 +409,6 @@ public abstract class SurveyFormActivity extends FormActivity
 				{
 					System.out.println(e + " at getSections()");
 				}
-
-				//Log.i("Log", result[i]);
 			}
 		}
 		catch(JSONException e)
@@ -412,6 +445,47 @@ public abstract class SurveyFormActivity extends FormActivity
 		}
 	}
 
+	protected void populate( DatabaseHandler db, String key, String householdId,boolean val )
+	{
+		try
+		{
+			FormWidget widget;
+			//Added to delete photos which are not linked
+			db.deletePhotos();
+			for( int i = 0; i< _widgets.size(); i++) 
+			{
+				widget = _widgets.get(i);
+				widget.setValue(db.getValue(widget.getId(), widget.getSub(), key));
+				if(val==true)
+				{
+					if(widget.getId().equalsIgnoreCase("412"))
+					{
+						String date = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
+						widget.setValue(date);
+						
+					}else if(widget.getId().equalsIgnoreCase("419"))
+					{
+						widget.setValue(householdId);
+					}else if(widget.getId().equalsIgnoreCase("416"))
+					{
+						widget.setValue(householdId);
+					}
+					
+				}else
+				{
+					widget.setValue(db.getValue(widget.getId(), widget.getSub(), key));
+				}
+				
+				//Added to set photos back to image view list from database.
+				widget.setImageValues(this,db.getImages(widget.getId(), widget.getSub(), key));
+			}
+		}
+		catch (IndexOutOfBoundsException e)
+		{
+			System.out.println(e);
+		}
+	}
+	
 	/**
 	 * Save(db, survey) validates each value in the form in respect to it's
 	 * specifications. If validation fails, toast and warning signs are placed
