@@ -143,7 +143,7 @@ public class MainSurvey extends SurveyFormActivity
 		DatabaseHandler db = new DatabaseHandler(this);
 		if(survey.equals("17h") || survey.equals("18h"))
 		{
-			populate(db, key,householdId ,true);
+			populate(db, key,householdId ,slumName,true);
 		}else
 		{
 			populate(db, key);
