@@ -445,13 +445,17 @@ public abstract class SurveyFormActivity extends FormActivity
 		}
 	}
 
-	protected void populate( DatabaseHandler db, String key, String householdId,boolean val )
+	protected void populate( DatabaseHandler db, String key, String householdId,String slum,boolean val )
 	{
 		try
 		{
+			
 			FormWidget widget;
 			//Added to delete photos which are not linked
 			db.deletePhotos();
+			
+			String[] slumsplit=slum.split(",");
+			
 			for( int i = 0; i< _widgets.size(); i++) 
 			{
 				widget = _widgets.get(i);
@@ -469,6 +473,16 @@ public abstract class SurveyFormActivity extends FormActivity
 					}else if(widget.getId().equalsIgnoreCase("416"))
 					{
 						widget.setValue(householdId);
+					}else if(widget.getId().equalsIgnoreCase("417"))
+					{
+						widget.setValue(slumsplit[0]);
+					}else if(widget.getId().equalsIgnoreCase("418"))
+					{
+						String slumName="";
+						for (int j = 1; j < slumsplit.length; j++) {
+							slumName= (slumName+","+slumsplit[j]).trim();
+						}
+						widget.setValue(slumName.substring(1, slumName.length() ));
 					}
 					
 				}else
