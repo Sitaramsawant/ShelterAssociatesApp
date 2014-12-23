@@ -7,12 +7,15 @@ import java.io.FileNotFoundException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.R;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputFilter;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -51,10 +54,12 @@ public class SlumSelect extends FormActivity
 				intent.putExtra("section", "");
 				try {
 					String householdId = get(1);
-					if (! householdId.matches("\\d\\d\\d\\d")) {
-						Toast.makeText(getApplicationContext(), "The household ID should be four digits, e.g. 0004" , Toast.LENGTH_LONG).show();
+					//if (! householdId.matches("\\d\\d\\d\\d")){
+					if (! householdId.matches("\\d\\d\\d\\w")) {
+						Toast.makeText(getApplicationContext(), "The household ID should be four digits, e.g. 0004 or 001A" , Toast.LENGTH_LONG).show();
 						return;
-					} else {
+					}					
+					else {
 						intent.putExtra("householdId", householdId);
 					}
 				} catch (Exception e) {
@@ -103,16 +108,21 @@ public class SlumSelect extends FormActivity
         	} 
         	Intent intent = getIntent();
             if (intent.hasExtra("slumID")) {
-            	slumID=intent.getExtras().getString("slumID");            	
+            	slumID=intent.getExtras().getString("slumID");          	
             }
             
-    		LinearLayout layout = generateForm(questionString + " }"); 
+    		LinearLayout layout = generateForm(questionString + " }");     		   		
+    		/**************************************************************
+    		EditText editText=(EditText)  layout.getChildAt(1);
+    		InputFilter lengthFilter=new InputFilter.LengthFilter(4);
+    	    editText.setFilters(new InputFilter[]{lengthFilter});
+    	    /************************************************************/
     		
     		TextView spacer = new TextView(this);
     		spacer.setHeight(15);
     		layout.addView(spacer);
         	layout.addView(bt);
-        	
+        	       
         	TextView spacer1 = new TextView(this);
         	spacer1.setHeight(15);
     		layout.addView(spacer1);
