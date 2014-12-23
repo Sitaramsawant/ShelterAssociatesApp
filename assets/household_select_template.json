@@ -2,6 +2,6 @@
 {
 	"id" : "0",
 	"required" : "true",
-	"type" : "I",
-	"weight" : "2"
+	"type" : "T",
+	"weight" : "2"	
 }
